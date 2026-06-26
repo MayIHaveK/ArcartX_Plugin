@@ -1,0 +1,6 @@
+.gradle
+.idea
+build
+/bin/
+# 本地工具产物，不应进入公开仓库
+.github/modernize/
