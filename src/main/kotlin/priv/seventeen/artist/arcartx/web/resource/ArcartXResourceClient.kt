@@ -11,9 +11,6 @@ package priv.seventeen.artist.arcartx.web.resource
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import priv.seventeen.artist.arcartx.ArcartX.configs
 import priv.seventeen.artist.arcartx.language.AXLanguageKey
 import priv.seventeen.artist.arcartx.language.L
@@ -26,11 +23,11 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /** 资源同步客户端 */
 class ArcartXResourceClient {
@@ -81,15 +78,18 @@ class ArcartXResourceClient {
 
     // 线程安全的缓存
     val cachedCrc64List: ConcurrentHashMap<String, String> = ConcurrentHashMap()
-    
-    // 缓存更新互斥锁
-    private val cacheMutex = Mutex()
-    
-    // 协程作用域（用于管理异步操作的生命周期）
-    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private suspend fun updateCrc64List(): Result<Map<String, String>> = withContext(Dispatchers.IO) {
-        try {
+    // 缓存更新互斥锁
+    private val cacheLock = ReentrantLock()
+
+    // 异步任务线程池（用于管理异步操作的生命周期，使用守护线程避免阻塞JVM退出）
+    private val threadId = AtomicInteger(0)
+    private val executor = Executors.newCachedThreadPool { runnable ->
+        Thread(runnable, "ArcartX-Resource-${threadId.incrementAndGet()}").apply { isDaemon = true }
+    }
+
+    private fun updateCrc64List(): Result<Map<String, String>> {
+        return try {
             // 构建请求
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("${apiUrl.trimEnd('/')}/api/files/crc64-list"))
@@ -99,9 +99,9 @@ class ArcartXResourceClient {
                 .GET()
                 .build()
 
-            // 发送请求并处理响应
-            val response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).await()
-            
+            // 发送请求并处理响应（同步阻塞，运行在线程池中）
+            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
             if (response.statusCode() !in 200..299) {
                 throw RuntimeException(L(AXLanguageKey.EXCEPTION_HTTP_REQUEST_FAILED, response.statusCode().toString()))
             }
@@ -115,9 +115,9 @@ class ArcartXResourceClient {
             }
 
             val crc64Data = apiResponse.data ?: throw RuntimeException(L(AXLanguageKey.EXCEPTION_RESPONSE_EMPTY))
-            
+
             // 更新缓存
-            cacheMutex.withLock {
+            cacheLock.withLock {
                 cachedCrc64List.clear()
                 crc64Data.files.forEach { fileInfo ->
                     cachedCrc64List[fileInfo.fileName] = fileInfo.crc64
@@ -130,12 +130,12 @@ class ArcartXResourceClient {
         }
     }
 
-    private suspend fun generateSignedDownloadLink(
+    private fun generateSignedDownloadLink(
         fileName: String,
         expirationMinutes: Int = 15,
         downloadLimit: Int = 2
-    ): Result<SignedLinkData> = withContext(Dispatchers.IO) {
-        try {
+    ): Result<SignedLinkData> {
+        return try {
             val requestBody = SignedLinkRequest(
                 fileName = fileName,
                 expirationMinutes = expirationMinutes,
@@ -152,8 +152,8 @@ class ArcartXResourceClient {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build()
 
-            val response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).await()
-            
+            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
             if (response.statusCode() !in 200..299) {
                 throw RuntimeException(L(AXLanguageKey.EXCEPTION_HTTP_REQUEST_FAILED, response.statusCode().toString()))
             }
@@ -177,7 +177,7 @@ class ArcartXResourceClient {
         onSuccess: (Map<String, String>) -> Unit,
         onFailure: (Throwable) -> Unit
     ) {
-        coroutineScope.launch {
+        executor.execute {
             try {
                 val result = updateCrc64List()
                 if (result.isSuccess) {
@@ -198,7 +198,7 @@ class ArcartXResourceClient {
         onSuccess: (SignedLinkData) -> Unit,
         onFailure: (Throwable) -> Unit
     ) {
-        coroutineScope.launch {
+        executor.execute {
             try {
                 val result = generateSignedDownloadLink(fileName, expirationMinutes, downloadLimit)
                 if (result.isSuccess) {
@@ -218,7 +218,7 @@ class ArcartXResourceClient {
         downloadLimit: Int = 2,
         callback: (MutableMap<String, String>) -> Unit
     ) {
-        coroutineScope.launch {
+        executor.execute {
             try {
                 val results = mutableMapOf<String, String>()
                 for(name in files){
@@ -235,19 +235,6 @@ class ArcartXResourceClient {
     }
 
     fun close() {
-        coroutineScope.cancel()
-    }
-}
-
-
-private suspend fun <T> CompletableFuture<T>.await(): T {
-    return suspendCoroutine { continuation ->
-        whenComplete { result, throwable ->
-            if (throwable != null) {
-                continuation.resumeWithException(throwable)
-            } else {
-                continuation.resume(result)
-            }
-        }
+        executor.shutdownNow()
     }
 }
