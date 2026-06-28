@@ -31,6 +31,7 @@ interface MessageID {
         MOUSE_CLICK(16),
         UI_DATA(19),
         MOVE_BREAK(20),
+        CONTAINER_CLICK(21), // 对原版容器发起槽位点击(触发 InventoryClickEvent)
     }
 
 

@@ -74,6 +74,7 @@ class NetworkManager : PluginMessageListener {
         registerPacket(MessageID.Client.MOUSE_CLICK, CPackMouseClick::class.java)
         registerPacket(MessageID.Client.UI_DATA, CPackUIData::class.java)
         registerPacket(MessageID.Client.MOVE_BREAK, CPackMoveBreak::class.java)
+        registerPacket(MessageID.Client.CONTAINER_CLICK, CPackContainerClick::class.java)
     }
 
     fun close(){
