@@ -25,13 +25,20 @@ object MythicMobsHooker {
 
     var config: KeywordConfig? = null
 
+
+    @Awake(LifeCycle.LOAD)
+    fun registerBullet() {
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+            ModelBullet.register()
+        }
+    }
+
     @Awake(LifeCycle.ACTIVE)
     fun load() {
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
             config = KeywordConfig()
             bukkitPlugin.sendMessage(L(AXLanguageKey.FOUND_MYTHICMOBS))
             Bukkit.getPluginManager().registerEvents(MythicMobsListener(), bukkitPlugin)
-            ModelBullet.register()
             if(Bukkit.getPluginManager().getPlugin("ModelEngine") != null){
                 bukkitPlugin.sendMessage(L(AXLanguageKey.FOUND_MODEL_ENGINE))
                 WrappedHitboxSupport.setup()
