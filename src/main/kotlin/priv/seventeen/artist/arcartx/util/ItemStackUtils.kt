@@ -92,6 +92,11 @@ object ItemStackUtils {
     }
 
     @JvmStatic
+    fun ItemStack.setArmorTexture(id: String){
+        this.itemMeta = this.editTag { this["armor_texture"] = ItemTagData.of(id) }.itemMeta
+    }
+
+    @JvmStatic
     fun ItemStack.setFPModel(path: String){
         this.itemMeta = this.editTag { this["fp_model"] = ItemTagData.of(path) }.itemMeta
     }

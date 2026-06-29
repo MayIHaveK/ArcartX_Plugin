@@ -90,6 +90,12 @@ class Setting(plugin: JavaPlugin = bukkitPlugin, pathName: String = "setting.yml
     var entityCacheClearInterval = 6000
         private set
 
+    @Comment("是否启用玩家默认模型(内置 Steve 宿主模型)")
+    @Comment("开启后:没有显式模型的玩家入服自动渲染内置默认模型;关闭则不给玩家装默认模型,回退原版渲染")
+    @SerializedName("playerDefaultModelEnabled")
+    var playerDefaultModelEnabled = true
+        private set
+
 
 
 

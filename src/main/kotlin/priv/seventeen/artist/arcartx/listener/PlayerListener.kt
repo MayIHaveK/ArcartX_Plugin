@@ -76,7 +76,12 @@ fun onClientInitialized(event: ClientInitializedEvent.Start) {
 
 @AutoListener
 fun onClientInitialized(event: ClientInitializedEvent.End) {
-
+    if (ArcartX.configs.setting.playerDefaultModelEnabled) {
+        val p = ArcartXEntityManager.getPlayer(event.player) ?: return
+        if (p.playerModel.isEmpty()) {
+            p.setModel("__default_player__", 1.0)
+        }
+    }
 }
 
 @AutoListener

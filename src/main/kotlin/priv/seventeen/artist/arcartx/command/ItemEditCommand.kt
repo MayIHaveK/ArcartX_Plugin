@@ -27,6 +27,7 @@ import priv.seventeen.artist.arcartx.util.ItemStackUtils.setDrop
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setFPModel
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setIcon
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setLore
+import priv.seventeen.artist.arcartx.util.ItemStackUtils.setArmorTexture
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setModel
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setUrl
 import priv.seventeen.artist.asteroid.item.ItemTag
@@ -177,6 +178,23 @@ class ItemEditCommand : MultiCommandExecutor() {
             return
         }
         item.setModel(context.getArg(0))
+    }
+
+    @CommandHandler(
+        command = "setArmor",
+        description = "设置盔甲自定义贴图(资源id)",
+        permission = "arcartx.command.admin.item.edit",
+        args = ["id"],
+        senderType = SenderType.PLAYER
+    )
+    fun setArmor(context: CommandContext) {
+        val player = context.getSender() as Player
+        val item = player.inventory.itemInMainHand
+        if (item.type == Material.AIR) {
+            context.sendMessage(L(AXLanguageKey.HOLD_ITEM_REQUIRED))
+            return
+        }
+        item.setArmorTexture(context.getArg(0))
     }
 
     @CommandHandler(
