@@ -29,6 +29,9 @@ object ArcartXEntityManager {
         AsteroidScheduler.runTaskTimer(bukkitPlugin, Runnable {
             _entities.values.removeIf(ArcartXEntity::isExpired)
         }, 0L, ArcartX.configs.setting.entityCacheClearInterval * 1L)
+        AsteroidScheduler.runTaskTimer(bukkitPlugin, Runnable {
+            _players.values.forEach(ArcartXPlayer::updateFlyingState)
+        }, 0L, 1L)
     }
 
     private val _entities: MutableMap<UUID, ArcartXEntity> = ConcurrentHashMap()

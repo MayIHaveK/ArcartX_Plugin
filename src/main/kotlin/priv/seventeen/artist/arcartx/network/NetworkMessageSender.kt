@@ -306,6 +306,10 @@ object NetworkMessageSender {
         sendPacketSync(player, MessageID.Server.CONTROLLER, DecodeType.NORMAL, SPackSetController(target, controller))
     }
 
+    fun sendFlyingState(player: Player, target: UUID, flying: Boolean) {
+        sendPacketAsync(player, MessageID.Server.FLYING_STATE, DecodeType.NORMAL, SPackFlyingState(target, flying))
+    }
+
     fun sendSceneCamera(player: Player, name: String) {
         ArcartX.configs.sceneCameraFolder.configs[name]?.let {
             sendPacketAsync(player, MessageID.Server.SCENE_CAMERA, DecodeType.NORMAL, SPackSceneCamera(it))

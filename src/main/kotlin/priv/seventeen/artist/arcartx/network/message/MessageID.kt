@@ -95,7 +95,8 @@ interface MessageID {
         PLAYER_LOOK(60),
         CONTROLLER_DATA(61),
         BEDROCK_PARTICLES(62),
-        FIRST_PERSON_ANIMATION(63)
+        FIRST_PERSON_ANIMATION(63),
+        FLYING_STATE(64), // 广播玩家创造/旁观飞行态(vanilla 不同步其他玩家的 abilities.flying，客户端远端拿不到)
         ;
 
         override val id: Int = id

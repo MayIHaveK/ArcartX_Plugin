@@ -50,6 +50,9 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
 
     private var controller : String? = null
 
+    // 上一次广播的飞行态，用于变更检测（仅在 isFlying 改变时才 seenBy 广播）
+    private var lastFlying : Boolean = false
+
     var playerModel: String = ""
         private set
 
@@ -173,6 +176,17 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
             NetworkMessageSender.sendAddExtraModel(target, player.uniqueId, key, value)
         }
         NetworkMessageSender.sendSubstitutionModel(target, player.uniqueId, substitutionModelID, substitutionModels, substitutionMode)
+        // 新观察者进入视野时，补发当前飞行态
+        NetworkMessageSender.sendFlyingState(target, player.uniqueId, player.isFlying)
+    }
+
+    /** 每 tick 轮询：飞行态变化时按 seenBy 广播给观察者（vanilla 不同步其他玩家的 abilities.flying）。 */
+    fun updateFlyingState() {
+        val flying = player.isFlying
+        if (flying != lastFlying) {
+            lastFlying = flying
+            player.doWithSeenBy { NetworkMessageSender.sendFlyingState(it, player.uniqueId, flying) }
+        }
     }
 
     fun setController(controller: String) {
