@@ -82,7 +82,6 @@ interface MessageID {
         BLOCK_MODEL(47),
         SLOT_DEBUG(48),
         REMOVE_VARIABLE(49),
-        PLAYER_SUBSTITUTION_MODEL(50),
         WORLD_TEXTURE(51),
         WORLD_TEXTURE_REMOVE(52),
         OPEN_EDITOR(53),
@@ -97,6 +96,9 @@ interface MessageID {
         BEDROCK_PARTICLES(62),
         FIRST_PERSON_ANIMATION(63),
         FLYING_STATE(64), // 广播玩家创造/旁观飞行态(vanilla 不同步其他玩家的 abilities.flying，客户端远端拿不到)
+        COSTUME(65),
+        PLAYER_VARIANT(66),
+        ANIMATION_PACK(67),
         ;
 
         override val id: Int = id

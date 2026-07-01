@@ -12,15 +12,10 @@ package priv.seventeen.artist.arcartx.network.packet.server
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-class SPackSubstitutionModel(
+
+class SPackAnimationPack(
     @SerializedName("uuid")
     private val target: UUID,
-    @SerializedName("modelID")
-    private val model: String,
-    @SerializedName("models")
-    private val models: Map<String,String>,
-    @SerializedName("mode")
-    private val mode:String
-) : ServerPacket {
-
-}
+    @SerializedName("packId")
+    private val packId: String
+) : ServerPacket

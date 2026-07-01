@@ -87,8 +87,16 @@ object NetworkMessageSender {
         sendPacketAsync(player, MessageID.Server.DAMAGE_DISPLAY, DecodeType.NORMAL, SPackDamageDisplay(dataId, damage, x, y, z))
     }
 
-    fun sendSubstitutionModel(player: Player, target: UUID, modelID: String, models: Map<String, String>, mode:String) {
-        sendPacketSync(player, MessageID.Server.PLAYER_SUBSTITUTION_MODEL, DecodeType.NORMAL, SPackSubstitutionModel(target, modelID, models, mode))
+    fun sendCostume(player: Player, target: UUID, suit: String?, suitHide: Boolean, slots: Map<String, SPackCostume.Slot>) {
+        sendPacketSync(player, MessageID.Server.COSTUME, DecodeType.NORMAL, SPackCostume(target, suit, suitHide, slots))
+    }
+
+    fun sendPlayerVariant(player: Player, target: UUID, variant: String) {
+        sendPacketSync(player, MessageID.Server.PLAYER_VARIANT, DecodeType.NORMAL, SPackPlayerVariant(target, variant))
+    }
+
+    fun sendAnimationPack(player: Player, target: UUID, packId: String) {
+        sendPacketSync(player, MessageID.Server.ANIMATION_PACK, DecodeType.NORMAL, SPackAnimationPack(target, packId))
     }
 
 

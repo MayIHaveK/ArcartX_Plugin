@@ -26,8 +26,6 @@ class SlotElement() : ArcartXConfigSection() {
     var attribute: String = "none"
         private set
 
-    @SerializedName("loadSubstitutionModel")
-    var loadSubstitutionModel: Boolean = false
 
     @SerializedName("limit")
     var limit = ArrayList<String>()

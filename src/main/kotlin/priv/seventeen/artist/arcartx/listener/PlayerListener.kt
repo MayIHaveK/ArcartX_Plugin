@@ -14,6 +14,7 @@ import org.bukkit.Material
 import org.bukkit.block.Skull
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
+import org.bukkit.event.EventPriority
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -96,19 +97,6 @@ fun onPlayerLeaveServer(event: PlayerQuitEvent){
     ArcartXEditorManager.removeEditorData(event.player.uniqueId)
 }
 
-@AutoListener
-fun onSlotUpdate(event: PlayerExtraSlotUpdateEvent) {
-    if (ArcartX.configs.slotFolder.setting[event.slotID]?.loadSubstitutionModel != true) {
-        return
-    }
-    val itemStack = event.itemStack
-    if(itemStack.type.isAir){
-        event.player.arcartXHandler?.setSubstitutionModel("",false)
-    } else {
-        val model = itemStack.getTag("model")
-        event.player.arcartXHandler?.setSubstitutionModel(model, true)
-    }
-}
 
 
 @AutoListener
@@ -185,7 +173,7 @@ fun onAttackEntityEvent(event: EntityDamageEvent) {
 }
 
 
-@AutoListener(priority = org.bukkit.event.EventPriority.LOWEST, ignoreCancelled = true)
+@AutoListener(priority = EventPriority.LOWEST, ignoreCancelled = true)
 fun onPlayerMove(event: PlayerMoveEvent) {
     // 仅朝向变化（坐标未变）时直接返回，避免无意义的区域计算
     if (event.from.x == event.to?.x && event.from.y == event.to?.y && event.from.z == event.to?.z) return
@@ -281,8 +269,7 @@ object ArcartXPacketListener : PacketListener {
         AsteroidAPI.addPacketListener(bukkitPlugin, this)
     }
 
-    // 共享宿主 BlinkAsteroidHost 跨插件常驻，数据包注入不随本插件卸载自动清理，
-    // 必须在 DISABLE 阶段主动摘除，否则 reload 后监听器泄漏、旧 ClassLoader 无法回收
+
     @Awake(LifeCycle.DISABLE)
     fun unregister() {
         AsteroidAPI.removePacketListener(bukkitPlugin, this)

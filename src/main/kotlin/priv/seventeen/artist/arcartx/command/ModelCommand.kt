@@ -11,6 +11,7 @@ package priv.seventeen.artist.arcartx.command
 
 import org.bukkit.entity.Player
 import priv.seventeen.artist.arcartx.core.entity.ArcartXEntityManager
+import priv.seventeen.artist.arcartx.core.entity.data.ArcartXPlayer
 import priv.seventeen.artist.arcartx.commons.command.CommandContext
 import priv.seventeen.artist.arcartx.commons.command.annotation.CommandHandler
 import priv.seventeen.artist.arcartx.commons.command.annotation.SenderType
@@ -47,6 +48,61 @@ class ModelCommand : MultiCommandExecutor() {
     fun removeModel(context: CommandContext) {
         context.getArgAsPlayer(0)?.let {
             ArcartXEntityManager.getPlayer(it)?.removeModel()
+        }
+    }
+
+    @CommandHandler(
+        command = "defaultModel",
+        description = "设置玩家为内置默认模型(叠加盔甲/披风/鞘翅/时装)",
+        permission = "arcartx.command.admin.entity.edit",
+        args = ["player", "scale"],
+        senderType = SenderType.OP
+    )
+    fun defaultModel(context: CommandContext) {
+        context.getArgAsPlayer(0)?.let {
+            val scale = context.getArgAsDouble(1) ?: 1.0
+            ArcartXEntityManager.getPlayer(it)?.setDefaultModel(scale)
+        }
+    }
+
+    @CommandHandler(
+        command = "customModel",
+        description = "设置玩家模型",
+        permission = "arcartx.command.admin.entity.edit",
+        args = ["player", "modelID", "scale"],
+        senderType = SenderType.OP
+    )
+    fun customModel(context: CommandContext) {
+        context.getArgAsPlayer(0)?.let {
+            val scale = context.getArgAsDouble(2) ?: 1.0
+            ArcartXEntityManager.getPlayer(it)?.setCustomModel(context.getArg(1), scale)
+        }
+    }
+
+
+    @CommandHandler(
+        command = "animationPack",
+        description = "指派玩家动画包",
+        permission = "arcartx.command.admin.entity.edit",
+        args = ["player", "packID"],
+        senderType = SenderType.OP
+    )
+    fun animationPack(context: CommandContext) {
+        context.getArgAsPlayer(0)?.let {
+            ArcartXEntityManager.getPlayer(it)?.setAnimationPack(context.getArg(1))
+        }
+    }
+
+    @CommandHandler(
+        command = "clearAnimationPack",
+        description = "取消玩家动画包",
+        permission = "arcartx.command.admin.entity.edit",
+        args = ["player"],
+        senderType = SenderType.OP
+    )
+    fun clearAnimationPack(context: CommandContext) {
+        context.getArgAsPlayer(0)?.let {
+            ArcartXEntityManager.getPlayer(it)?.clearAnimationPack()
         }
     }
 
@@ -103,19 +159,7 @@ class ModelCommand : MultiCommandExecutor() {
         }
     }
 
-    // 测试覆盖模型
-    @CommandHandler(
-        command = "testSubstitutionModel",
-        description = "测试覆盖模型",
-        permission = "arcartx.command.admin.entity.edit",
-        args = ["player", "modelID","mode"],
-    )
-    fun testSubstitutionModel(context: CommandContext) {
-        context.getArgAsPlayer(0)?.let {
-            val mode = context.getArgAsBoolean(2) ?: return
-            ArcartXEntityManager.getPlayer(it)?.setSubstitutionModel(context.getArg(1), mode)
-        }
-    }
+
 
     @CommandHandler(
         command = "testAnimation",

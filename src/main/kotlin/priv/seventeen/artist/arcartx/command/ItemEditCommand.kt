@@ -28,6 +28,7 @@ import priv.seventeen.artist.arcartx.util.ItemStackUtils.setFPModel
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setIcon
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setLore
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setArmorTexture
+import priv.seventeen.artist.arcartx.util.ItemStackUtils.setCostume
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setModel
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.setUrl
 import priv.seventeen.artist.asteroid.item.ItemTag
@@ -195,6 +196,24 @@ class ItemEditCommand : MultiCommandExecutor() {
             return
         }
         item.setArmorTexture(context.getArg(0))
+    }
+
+    @CommandHandler(
+        command = "setCostume",
+        description = "给护甲绑定时装; hide=是否隐藏对应宿主部位(默认 false)",
+        permission = "arcartx.command.admin.item.edit",
+        args = ["modelID", "?hide"],
+        senderType = SenderType.PLAYER
+    )
+    fun setCostume(context: CommandContext) {
+        val player = context.getSender() as Player
+        val item = player.inventory.itemInMainHand
+        if (item.type == Material.AIR) {
+            context.sendMessage(L(AXLanguageKey.HOLD_ITEM_REQUIRED))
+            return
+        }
+        val hide = context.getArgAsBoolean(1) ?: false
+        item.setCostume(context.getArg(0), hide)
     }
 
     @CommandHandler(

@@ -16,9 +16,13 @@ import priv.seventeen.artist.arcartx.ArcartX
 import priv.seventeen.artist.arcartx.core.config.area.Area
 import priv.seventeen.artist.arcartx.core.effect.data.EffectPosition
 import priv.seventeen.artist.arcartx.core.effect.data.WorldTextureBuilder
+import priv.seventeen.artist.arcartx.event.player.PlayerAnimationPackChangeEvent
+import priv.seventeen.artist.arcartx.event.player.PlayerCostumeChangeEvent
 import priv.seventeen.artist.arcartx.event.player.PlayerExtraSlotUpdateEvent
 import priv.seventeen.artist.arcartx.event.player.PlayerModelUpdateEvent
+import priv.seventeen.artist.arcartx.event.player.PlayerVariantChangeEvent
 import priv.seventeen.artist.arcartx.network.NetworkMessageSender
+import priv.seventeen.artist.arcartx.network.packet.server.SPackCostume
 import priv.seventeen.artist.arcartx.network.encryptor.AESEncryptor
 import priv.seventeen.artist.arcartx.nms.AsteroidScheduler
 import priv.seventeen.artist.arcartx.script.ScriptManager
@@ -63,13 +67,18 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
     // 额外模型
     private var extraModels = HashMap<String, String>()
 
+    // 时装
+    private var costumeSuit: String? = null
+    private var costumeSuitHide: Boolean = false
+    private val costumeSlots = HashMap<CostumeSlot, Pair<String, Boolean>>()
 
-    private var substitutionMode = SubstitutionMode.TRADITION_HIDE.id
+    // 玩家模型变体：决定是否叠加原版附属物(盔甲/披风/鞘翅/时装)
+    private var variant: PlayerModelVariant = PlayerModelVariant.DEFAULT_BBMODEL
+        private set
 
-    // TYPE - MODEL_ID
-    private var substitutionModels = HashMap<String, String>()
-
-    private var substitutionModelID = ""
+    // 玩家动画包 id
+    var animationPackId: String = ""
+        private set
 
     // 标记是否发送资源
     var sentResource = false
@@ -123,41 +132,80 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
         player.doWithSeenBy { NetworkMessageSender.sendClearExtraModel(it, player.uniqueId) }
     }
 
-    @Deprecated(
-        "弃用，改用基于 SubstitutionMode 的重载",
-        replaceWith = ReplaceWith(
-            "setSubstitutionModel(if (mode) SubstitutionMode.TRADITION_HIDE else SubstitutionMode.FULL, modelID)",
-            "priv.seventeen.artist.arcartx.core.entity.data.SubstitutionMode"
-        )
-    )
-    fun setSubstitutionModel(modelID: String, mode: Boolean) {
-        substitutionModels.clear()
-        substitutionMode = if (mode)  SubstitutionMode.TRADITION_HIDE.id else SubstitutionMode.FULL.id
-        substitutionModelID = modelID
-        player.doWithSeenBy { NetworkMessageSender.sendSubstitutionModel(it, player.uniqueId, substitutionModelID, substitutionModels, substitutionMode) }
+
+    fun equipSuit(modelID: String, hide: Boolean = true) {
+        if (!PlayerCostumeChangeEvent(player, PlayerCostumeChangeEvent.Type.EQUIP_SUIT, null, modelID, hide).call()) return
+        costumeSlots.clear()
+        costumeSuit = modelID
+        costumeSuitHide = hide
+        broadcastCostume()
     }
 
-    fun setSubstitutionModel(mode: SubstitutionMode, modelID: String = "", models: Map<SingleModelType, String> = mapOf()) {
-        substitutionModels.clear()
-        substitutionModelID = ""
-        substitutionMode = mode.id
-
-        if(mode == SubstitutionMode.TRADITION_SINGLE){
-            models.forEach { (type, modelID) ->
-                substitutionModels[type.id] = modelID
-            }
-        } else {
-            substitutionModelID = modelID
-        }
-
-        player.doWithSeenBy { NetworkMessageSender.sendSubstitutionModel(it, player.uniqueId, substitutionModelID, substitutionModels, substitutionMode) }
+    fun equipCostume(slot: CostumeSlot, modelID: String, hide: Boolean = false) {
+        if (!PlayerCostumeChangeEvent(player, PlayerCostumeChangeEvent.Type.EQUIP_SLOT, slot, modelID, hide).call()) return
+        costumeSuit = null
+        costumeSlots[slot] = modelID to hide
+        broadcastCostume()
     }
 
-    fun removeSubstitutionModel() {
-        substitutionModels.clear()
-        substitutionModelID = ""
-        substitutionMode = SubstitutionMode.NONE.id
-        player.doWithSeenBy { NetworkMessageSender.sendSubstitutionModel(it, player.uniqueId, substitutionModelID, substitutionModels, substitutionMode) }
+    fun removeCostume(slot: CostumeSlot) {
+        if (!PlayerCostumeChangeEvent(player, PlayerCostumeChangeEvent.Type.REMOVE_SLOT, slot, null, false).call()) return
+        costumeSuit = null
+        costumeSlots.remove(slot)
+        broadcastCostume()
+    }
+
+    fun clearCostume() {
+        if (!PlayerCostumeChangeEvent(player, PlayerCostumeChangeEvent.Type.CLEAR, null, null, false).call()) return
+        costumeSuit = null
+        costumeSlots.clear()
+        broadcastCostume()
+    }
+
+    private fun costumeSlotsDto(): Map<String, SPackCostume.Slot> =
+        costumeSlots.entries.associate { (slot, v) -> slot.id to SPackCostume.Slot(v.first, v.second) }
+
+    private fun broadcastCostume() {
+        val dto = costumeSlotsDto()
+        player.doWithSeenBy { NetworkMessageSender.sendCostume(it, player.uniqueId, costumeSuit, costumeSuitHide, dto) }
+    }
+
+
+    private fun broadcastVariant() {
+        player.doWithSeenBy { NetworkMessageSender.sendPlayerVariant(it, player.uniqueId, variant.name) }
+    }
+
+
+
+    fun setDefaultModel(scale: Double = 1.0) {
+        if (!PlayerVariantChangeEvent(player, PlayerModelVariant.DEFAULT_BBMODEL).call()) return
+        this.variant = PlayerModelVariant.DEFAULT_BBMODEL
+        setModel("__default_player__", scale)
+        broadcastVariant()
+    }
+
+    fun setCustomModel(modelID: String, scale: Double = 1.0) {
+        if (!PlayerVariantChangeEvent(player, PlayerModelVariant.CUSTOM_BBMODEL).call()) return
+        this.variant = PlayerModelVariant.CUSTOM_BBMODEL
+        setModel(modelID, scale)
+        broadcastVariant()
+    }
+
+
+    private fun broadcastAnimationPack() {
+        player.doWithSeenBy { NetworkMessageSender.sendAnimationPack(it, player.uniqueId, animationPackId) }
+    }
+
+    fun setAnimationPack(packId: String) {
+        if (!PlayerAnimationPackChangeEvent(player, packId).call()) return
+        this.animationPackId = packId
+        broadcastAnimationPack()
+    }
+
+    fun clearAnimationPack() {
+        if (!PlayerAnimationPackChangeEvent(player, "").call()) return
+        this.animationPackId = ""
+        broadcastAnimationPack()
     }
 
     fun playFirstPersonAnimationByTime(animation: String, speed: Double, keepTime: Int){
@@ -175,7 +223,18 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
         extraModels.forEach { (key, value) ->
             NetworkMessageSender.sendAddExtraModel(target, player.uniqueId, key, value)
         }
-        NetworkMessageSender.sendSubstitutionModel(target, player.uniqueId, substitutionModelID, substitutionModels, substitutionMode)
+        // 新观察者进入视野时，补发当前时装(运行时内存态，无 DB)
+        if (costumeSuit != null || costumeSlots.isNotEmpty()) {
+            NetworkMessageSender.sendCostume(target, player.uniqueId, costumeSuit, costumeSuitHide, costumeSlotsDto())
+        }
+        // 补发当前变体(仅非默认；DEFAULT 是客户端默认值，无需下发)
+        if (variant != PlayerModelVariant.DEFAULT_BBMODEL) {
+            NetworkMessageSender.sendPlayerVariant(target, player.uniqueId, variant.name)
+        }
+        // 补发当前动画包(仅非空)
+        if (animationPackId.isNotEmpty()) {
+            NetworkMessageSender.sendAnimationPack(target, player.uniqueId, animationPackId)
+        }
         // 新观察者进入视野时，补发当前飞行态
         NetworkMessageSender.sendFlyingState(target, player.uniqueId, player.isFlying)
     }
@@ -425,66 +484,12 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
 
 
 
-    enum class SubstitutionMode(val id: String) {
-        FULL("FULL"), // 该模式只允许穿戴一个
-        TRADITION("TRADITION"), // 该模式只允许穿戴一个
-        TRADITION_HIDE("TRADITION_HIDE"), // 该模式只允许穿戴一个
-        TRADITION_SINGLE("TRADITION_SINGLE"), // 该模式允许穿戴多个
-        NONE("NONE")
+    enum class CostumeSlot(val id: String) {
+        HEAD("HEAD"), BODY("BODY"), LEGS("LEGS"), FEET("FEET"), DECORATION("DECORATION")
     }
 
-    enum class SingleModelType(val id: String) {
-
-        HEAD("HEAD"){
-            override fun incompatible(): SingleModelType {
-                return HEAD_HIDE
-            }
-        },
-        UPPER_BODY("UPPER_BODY"){
-            override fun incompatible(): SingleModelType {
-                return UPPER_BODY_HIDE
-            }
-        },
-        LOWER_BODY("LOWER_BODY"){
-            override fun incompatible(): SingleModelType {
-                return LOWER_BODY_HIDE
-            }
-        },
-        FOOT("FOOT"){
-            override fun incompatible(): SingleModelType {
-                return FOOT_HIDE
-            }
-        },
-
-        HEAD_HIDE("HEAD_HIDE"){
-            override fun incompatible(): SingleModelType {
-                return HEAD
-            }
-        },
-        UPPER_BODY_HIDE("UPPER_BODY_HIDE"){
-            override fun incompatible(): SingleModelType {
-                return UPPER_BODY
-            }
-        },
-        LOWER_BODY_HIDE("LOWER_BODY_HIDE"){
-            override fun incompatible(): SingleModelType {
-                return LOWER_BODY
-            }
-        },
-        FOOT_HIDE("FOOT_HIDE"){
-            override fun incompatible(): SingleModelType {
-                return FOOT
-            }
-        },
-
-        OTHER("OTHER");
-
-        // 不兼容
-
-        open fun incompatible(): SingleModelType{
-            return OTHER
-        }
-
+    enum class PlayerModelVariant {
+        DEFAULT_BBMODEL, CUSTOM_BBMODEL
     }
 
 
