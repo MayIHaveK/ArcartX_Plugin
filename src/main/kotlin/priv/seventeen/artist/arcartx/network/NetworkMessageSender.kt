@@ -57,7 +57,7 @@ object NetworkMessageSender {
     }
 
     fun sendExecuteScript(player: Player, code: String, async: Boolean) {
-        sendPacketAsync(player, MessageID.Server.EXECUTE_SHIMMER, DecodeType.NORMAL, SPackExecuteScript(code, async))
+        sendPacketAsync(player, MessageID.Server.EXECUTE_ARIA, DecodeType.NORMAL, SPackExecuteScript(code, async))
     }
 
     fun sendSetting(player: Player) {

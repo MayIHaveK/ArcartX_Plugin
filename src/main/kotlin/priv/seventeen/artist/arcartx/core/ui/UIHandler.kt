@@ -63,8 +63,8 @@ abstract class UIHandler(val identifier: String, private val uiConfig: File) {
         ui.sendPacket(player, packetHandler, packet)
     }
 
-    fun sendRun(player: Player, shimmerCode: String){
-        ui.run(player, shimmerCode)
+    fun sendRun(player: Player, ariaCode: String){
+        ui.run(player, ariaCode)
     }
 
 }

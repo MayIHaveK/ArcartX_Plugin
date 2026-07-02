@@ -373,7 +373,7 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
         NetworkMessageSender.sendClientTitle(player, text)
     }
 
-    fun parseShimmer(code: String) {
+    fun parseAria(code: String) {
         NetworkMessageSender.sendExecuteScript(player, code, true)
     }
 

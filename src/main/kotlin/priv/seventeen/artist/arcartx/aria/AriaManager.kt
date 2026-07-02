@@ -35,6 +35,7 @@ object AriaManager {
             manager.registerObjectFunction(EntityInfo::class.java)
             manager.registerObjectFunction(EntityEffect::class.java)
             manager.registerObjectFunction(EntityCombat::class.java)
+            manager.registerObjectFunction(EntitySound::class.java)
 
             if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
                 manager.registerObjectFunction(MythicMob::class.java)

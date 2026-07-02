@@ -38,7 +38,7 @@ interface MessageID {
     enum class Server(id : Int) : MessageID {
         CONNECTION(0),
         RESOURCE_RELOAD(1),
-        EXECUTE_SHIMMER(2),
+        EXECUTE_ARIA(2),
         SETTING(3),
         BASE64_IMAGE(4),
         CUSTOM(5),

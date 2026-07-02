@@ -4,8 +4,8 @@ height: 500
 
 # 触发器配置 对于全息 有两个触发器类型
 action:
-  open:   # 开始触发器[Shimmer脚本]
-  close:  # 结束触发器[Shimmer脚本]
+  open:   # 开始触发器[Aria脚本]
+  close:  # 结束触发器[Aria脚本]
 
 # 元素配置
 element:
