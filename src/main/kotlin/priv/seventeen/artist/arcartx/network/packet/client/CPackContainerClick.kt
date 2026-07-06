@@ -16,6 +16,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.InventoryView
+import priv.seventeen.artist.arcartx.hook.trmenu.TrMenuBridge
 
 
 class CPackContainerClick : ClientPacket {
@@ -32,13 +33,19 @@ class CPackContainerClick : ClientPacket {
         get() = false
 
     override fun handle(player: Player) {
-        val view: InventoryView = player.openInventory
         val rawSlot = slot
-        if (rawSlot < 0 || rawSlot >= view.countSlots()) {
+        if (rawSlot < 0) return
+
+        val click = parseClickType(clickType)
+
+        // TrMenu 兼容优先：若玩家正在查看 TrMenu 菜单，则把点击路由进 TrMenu 的 Receptacle 管线。
+        if (TrMenuBridge.routeClick(player, rawSlot, click)) return
+
+        val view: InventoryView = player.openInventory
+        if (rawSlot >= view.countSlots()) {
             return
         }
 
-        val click = parseClickType(clickType)
         val slotType = view.getSlotType(rawSlot)
         val action = deriveAction(click, view, rawSlot, player)
 

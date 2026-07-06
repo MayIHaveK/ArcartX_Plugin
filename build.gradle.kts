@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     id("maven-publish")
-    id("priv.seventeen.artist.blink") version "1.3.10"
+    id("priv.seventeen.artist.blink") version "1.3.12"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jetbrains.kotlin.jvm") version "1.8.22"
     id("org.cadixdev.licenser") version "0.6.1"
@@ -24,7 +24,7 @@ blink {
     softDepend.set(listOf(
         "MythicMobs", "AttributePlus", "Adyeshach",
         "PlaceholderAPI", "ModelEngine", "PlayerPoints",
-        "Vault", "NeigeItems"
+        "Vault", "NeigeItems", "TrMenu"
     ))
     enableScript.set(true)
     enableAria.set(true)
@@ -50,7 +50,7 @@ repositories {
 }
 
 dependencies {
-    implementation("priv.seventeen.artist.blink:blink-common:1.3.10")
+    implementation("priv.seventeen.artist.blink:blink-common:1.3.12")
 
     // bStats 数据统计（org.bstats 在 shadowJar 中 relocate 进本插件包，避免与其他插件冲突）
     implementation("org.bstats:bstats-bukkit:3.1.0")
@@ -67,6 +67,7 @@ dependencies {
     // 无公共 Maven 仓库的插件
     compileOnly(files("libs/AttributePlus-3.3.3.0.jar"))
     compileOnly(files("libs/AstraXHero-1.0.0-BETA-7.jar"))
+    compileOnly(files("libs/TrMenu-3.12.3.jar"))
 
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     compileOnly("io.netty:netty-all:4.1.108.Final")
@@ -99,7 +100,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs = listOf("-Xjvm-default=all")
+        freeCompilerArgs = listOf("-Xjvm-default=all", "-Xskip-metadata-version-check")
     }
 }
 
