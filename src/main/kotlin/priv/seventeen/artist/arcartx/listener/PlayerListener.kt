@@ -37,7 +37,6 @@ import priv.seventeen.artist.arcartx.event.player.PlayerAreaLeaveEvent
 import priv.seventeen.artist.arcartx.event.player.PlayerExtraSlotUpdateEvent
 import priv.seventeen.artist.arcartx.network.NetworkMessageSender
 import priv.seventeen.artist.arcartx.nms.ItemBridge
-import priv.seventeen.artist.arcartx.owningPlayer
 import priv.seventeen.artist.arcartx.script.ScriptManager
 import priv.seventeen.artist.arcartx.util.EntityUtils.doWithSeenBy
 import priv.seventeen.artist.arcartx.util.ItemStackUtils.getCooldown
@@ -126,7 +125,7 @@ fun onPlayerPlaceBlockEvent(event: BlockPlaceEvent) {
         val block = event.block
         if(block.state is Skull){
             val skull = block.state as Skull
-            skull.setOwningPlayer(owningPlayer)
+            skull.setOwner("_arcartx_model_")
             skull.persistentDataContainer.set(
                 blockNamespace,
                 PersistentDataType.STRING,
