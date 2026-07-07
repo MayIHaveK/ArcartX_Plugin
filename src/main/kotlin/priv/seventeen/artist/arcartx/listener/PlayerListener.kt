@@ -55,7 +55,7 @@ import priv.seventeen.artist.blink.event.AutoListener
 import priv.seventeen.artist.blink.lifecycle.Awake
 import priv.seventeen.artist.blink.lifecycle.LifeCycle
 
-@AutoListener
+@AutoListener(priority = EventPriority.HIGHEST)
 fun onPlayerJoinEvent(event: PlayerJoinEvent) {
     val player = event.player
     try {
@@ -90,7 +90,7 @@ fun onPlayerChangeWorld(event: PlayerChangedWorldEvent){
     event.player.arcartXHandler?.startSeenBy(event.player)
 }
 
-@AutoListener
+@AutoListener(priority = EventPriority.LOWEST)
 fun onPlayerLeaveServer(event: PlayerQuitEvent){
     ArcartXEntityManager.removePlayer(event.player)
     ArcartXEditorManager.removeEditorData(event.player.uniqueId)

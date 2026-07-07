@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     id("maven-publish")
-    id("priv.seventeen.artist.blink") version "1.3.12"
+    id("priv.seventeen.artist.blink") version "1.3.13"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jetbrains.kotlin.jvm") version "1.8.22"
     id("org.cadixdev.licenser") version "0.6.1"
@@ -50,7 +50,7 @@ repositories {
 }
 
 dependencies {
-    implementation("priv.seventeen.artist.blink:blink-common:1.3.12")
+    implementation("priv.seventeen.artist.blink:blink-common:1.3.13")
 
     // bStats 数据统计（org.bstats 在 shadowJar 中 relocate 进本插件包，避免与其他插件冲突）
     implementation("org.bstats:bstats-bukkit:3.1.0")
