@@ -22,7 +22,10 @@ class SPackSetState(
     @SerializedName("speed")
     private val speed: Double,
     @SerializedName("moveBreak")
-    private val moveBreak: Long
+    private val moveBreak: Long,
+    /** 是否要求"新的"移动输入（取消窗口开启后先松开再按）才触发移动取消，缺省 false=按住即取消 */
+    @SerializedName("moveBreakFresh")
+    private val moveBreakFresh: Boolean = false
 ) : ServerPacket {
 
 }

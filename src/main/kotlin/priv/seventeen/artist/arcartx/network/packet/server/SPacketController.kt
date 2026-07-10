@@ -16,7 +16,7 @@ import priv.seventeen.artist.arcartx.core.controller.ControllerRegistry
 class SPacketController : ServerPacket {
 
     @SerializedName("action_controller")
-    private val actionControllerData: Map<String, Controller> = ControllerRegistry.controllers
+    private val actionControllerData: Map<String, Controller> = LinkedHashMap(ControllerRegistry.controllers)
 
 }
 

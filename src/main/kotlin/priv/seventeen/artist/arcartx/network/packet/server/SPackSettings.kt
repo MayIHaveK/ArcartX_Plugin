@@ -78,7 +78,7 @@ class SPackSettings : ServerPacket {
     private val entityModelData: Map<String, EntityModelData> = ArcartX.configs.entityModelFolder.elements
 
     @SerializedName("action_controller")
-    private val actionControllerData: Map<String, Controller> = ControllerRegistry.controllers
+    private val actionControllerData: Map<String, Controller> = LinkedHashMap(ControllerRegistry.controllers)
 
     @SerializedName("camera_preset")
     private val cameraData: Map<String, CameraElement> = ArcartX.configs.cameraPresetFolder.elements

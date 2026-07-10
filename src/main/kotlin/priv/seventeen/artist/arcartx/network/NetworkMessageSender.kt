@@ -301,12 +301,12 @@ object NetworkMessageSender {
         sendPacketAsync(player, MessageID.Server.PLAYER_JUMP, DecodeType.NORMAL, SPackPlayerJump(jumper))
     }
 
-    fun sendState(player: Player, target: UUID, controller: String, state: String, speed: Double, moveBreak: Long) {
+    fun sendState(player: Player, target: UUID, controller: String, state: String, speed: Double, moveBreak: Long, moveBreakFresh: Boolean = false) {
         sendPacketSync(
             player,
             MessageID.Server.STATE_CHANGE,
             DecodeType.NORMAL,
-            SPackSetState(target, controller, state, speed, moveBreak),
+            SPackSetState(target, controller, state, speed, moveBreak, moveBreakFresh),
         )
     }
 

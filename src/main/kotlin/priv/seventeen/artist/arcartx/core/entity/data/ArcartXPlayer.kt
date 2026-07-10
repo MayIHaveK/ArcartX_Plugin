@@ -330,6 +330,10 @@ class ArcartXPlayer(val player: Player) : ArcartXEntity(player){
         player.doWithSeenBy { NetworkMessageSender.sendState(it,player.uniqueId , controller, state,speed, moveBreak) }
     }
 
+    fun setState(controller: String, state: String, speed: Double, moveBreak: Long, moveBreakFresh: Boolean){
+        player.doWithSeenBy { NetworkMessageSender.sendState(it,player.uniqueId , controller, state,speed, moveBreak, moveBreakFresh) }
+    }
+
     fun addWayPoint(id: String, title: String, waypointConfigId: String, x: Double, y: Double, z: Double) {
         NetworkMessageSender.sendWaypointCreate(player, id, title, waypointConfigId, x, y, z)
     }

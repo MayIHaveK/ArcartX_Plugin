@@ -16,6 +16,9 @@ import priv.seventeen.artist.arcartx.commons.config.ArcartXConfig
 import priv.seventeen.artist.arcartx.commons.config.ArcartXConfigSection
 import priv.seventeen.artist.blink.bukkitPlugin
 
+/**
+ * 客户端动作控制器配置模型（本文件是该格式的唯一权威定义；主插件只负责格式/注册/存储）
+ */
 class Controller : ArcartXConfig {
 
 
@@ -46,40 +49,40 @@ class ControllerElement : ArcartXConfigSection() {
 class State : ArcartXConfigSection() {
 
     @SerializedName("animation")
-    private val animation: String = ""
+    val animation: String = ""
 
     @SerializedName("in")
-    private val inAnimation: Map<String, String> = mutableMapOf()
+    val inAnimation: Map<String, String> = mutableMapOf()
 
     @SerializedName("to")
-    private val outAnimation: Map<String, String> = mutableMapOf()
+    val outAnimation: Map<String, String> = mutableMapOf()
 
     @SerializedName("weight")
-    private val weight = 1.0
+    val weight = 1.0
 
     @SerializedName("speed")
-    private val speed = 1.0
+    val speed = 1.0
 
     @SerializedName("inTick")
-    private val transitionTick = 5
+    val transitionTick = 5
 
     @SerializedName("outTick")
-    private val transitionOutTick = -1
+    val transitionOutTick = -1
 
     @SerializedName("exclusive")
-    private val exclusive = false
+    val exclusive = false
 
     @SerializedName("moveLimit")
-    private val moveLimit = 1.0
+    val moveLimit = 1.0
 
     @SerializedName("clientLock")
-    private val clientLockData: ClientLock = ClientLock()
+    val clientLockData: ClientLock = ClientLock()
 
     @SerializedName("onStart")
-    private val onStart: String = ""
+    val onStart: String = ""
 
     @SerializedName("onEnd")
-    private val onEnd: String = ""
+    val onEnd: String = ""
 
 }
 
