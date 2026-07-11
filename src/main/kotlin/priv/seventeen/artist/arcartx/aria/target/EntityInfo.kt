@@ -11,6 +11,7 @@ package priv.seventeen.artist.arcartx.aria.target
 
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import priv.seventeen.artist.aria.annotation.java.AriaInvokeHandler
 import priv.seventeen.artist.aria.callable.InvocationData
 
@@ -108,5 +109,12 @@ object EntityInfo {
     fun getSelfMaxHealth(data: InvocationData): Double {
         val player = data.target as LivingEntity
         return player.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.value ?: 20.0
+    }
+
+    @JvmStatic
+    @AriaInvokeHandler(value = "isPlayer", target = LivingEntity::class)
+    fun isPlayer(data: InvocationData): Boolean {
+        val player = data.target as LivingEntity
+        return player is Player
     }
 }
