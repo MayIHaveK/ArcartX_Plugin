@@ -9,8 +9,8 @@
 
 package priv.seventeen.artist.arcartx.aria.target
 
-import cn.bukkitmc.hero.astrax.compat.placeholder.XPlaceholderHolder.placeholder
 import org.bukkit.entity.Player
+import priv.seventeen.artist.arcartx.util.PlaceholderUtils.placeholder
 import priv.seventeen.artist.arcartx.util.PlayerUtils.arcartXHandler
 import priv.seventeen.artist.aria.annotation.java.AriaInvokeHandler
 import priv.seventeen.artist.aria.callable.InvocationData
