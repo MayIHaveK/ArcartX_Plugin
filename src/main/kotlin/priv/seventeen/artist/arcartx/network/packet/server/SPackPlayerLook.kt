@@ -11,9 +11,12 @@ package priv.seventeen.artist.arcartx.network.packet.server
 
 import com.google.gson.annotations.SerializedName
 
-class SPacketPlayerLook(
+class SPackPlayerLook(
 @SerializedName("yaw")
-private val target: Float
+private val target: Float,
+/** 相机平滑跟随强度（每 1/60s 向目标闭合比例 0-1，仅纯自由相机模式生效）；0=玩家转向但相机不跟随。 */
+@SerializedName("strength")
+private val strength: Float = 0f
 ) : ServerPacket {
 
 }
