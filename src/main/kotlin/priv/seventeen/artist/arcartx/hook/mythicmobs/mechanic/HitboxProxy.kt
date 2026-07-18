@@ -15,6 +15,7 @@ import io.lumine.mythic.api.skills.placeholders.PlaceholderDouble
 import io.lumine.mythic.api.skills.placeholders.PlaceholderString
 import io.lumine.mythic.core.skills.mechanics.CustomMechanic
 import org.bukkit.entity.Entity
+import priv.seventeen.artist.arcartx.core.entity.ArcartXEntityManager
 import priv.seventeen.artist.arcartx.hook.mythicmobs.hitbox.InteractionProxyManager
 
 class HitboxProxy(holder: CustomMechanic?, mlc: MythicLineConfig) : AbstractEntityMechanic(holder) {
@@ -49,5 +50,6 @@ class HitboxProxy(holder: CustomMechanic?, mlc: MythicLineConfig) : AbstractEnti
                 InteractionProxyManager.createProxy(entity, widthVal, heightVal)
             }
         }
+        ArcartXEntityManager.getOrCreateEntity(entity)?.setSize(entity.width, heightVal)
     }
 }
